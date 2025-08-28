@@ -1,15 +1,15 @@
 #!/bin/bash
 set -e
 
-if id -u $USERNAME >/dev/null 2>&1; then
-    echo "User $USERNAME already exists. Skipping setup."
+if id --user $USERNAME >/dev/null 2>&1; then
+    echo "user:$USERNAME already exists, skipping setup ..."
 else
     groupadd --gid $USER_GID $USERNAME
-    useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
+    useradd --uid $USER_UID --gid $USER_GID --create-home $USERNAME
     echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-    chmod o+x /root
-    chown -R $USERNAME:$USERNAME /root/.vscode-server
-    chmod -R u+rwX /root/.vscode-server
+    setfacl --modify user:$USERNAME:--x /root
+    setfacl --recursive --modify user:$USERNAME:rwx /root/.vscode-server
+    setfacl --recursive --default --modify user:$USERNAME:rwx /root/.vscode-server
 fi
 
 exit 0
